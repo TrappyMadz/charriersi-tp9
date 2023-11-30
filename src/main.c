@@ -9,8 +9,9 @@
 // Importations
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 
-#include "utiles.h"
+#include "jeu.h"
 
 // Définitions
 #define ERREUR -1
@@ -28,50 +29,12 @@
 */
 int main(int argc, char ** argv) 
 {
-    // Déclaration des variables
-    // Choix du menu
-    int int_choix;
-    // Vérification
-    int int_verif;
-    // Taille du tableau et Tableau
-    int int_taille;
-    int* pint_tab;
-
-    printf("----------------------------------\n");
-	printf("---------------Menu---------------\n");
-	printf("----------------------------------\n");
-	printf("----Quelle fonction utiliser ?----\n");
-	printf("----------------------------------\n");
-	printf("- 1.                             -\n");
-	printf("- 2. Retour                      -\n");
-	printf("----------------------------------\n");
-	printf("----------------------------------\n");
-
-	int_verif = scanf("%d",&int_choix);
-
-	while (int_verif!=1)
-	{
-		printf("Veuillez entrer une option valide.\n");
-		int_verif = scanf("%d",&int_choix);
-	}
-
-    switch (int_choix)
+    srand(time(NULL));
+    struct sCarte paquet[52];
+    initialisation(paquet);
+    for (int i = 0; i < 52; i++) 
     {
-    case 1 :
-
-
-        break;
-        
-    case 2 :
-
- 	printf("Sortie du programme\n");
-        exit(SORTIE);
-        break;
- 
-    default:
-        printf("Sortie du programme\n");
-        exit(SORTIE);
-        break;
+        printf("Carte %d - Couleur: %d, Valeur: %d\n", i + 1, paquet[i].eCouleur, paquet[i].eValeurs);
     }
     return 0;
-}
+}   
