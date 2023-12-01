@@ -12,7 +12,7 @@ REP_DOC := doc
 
 # Compilation
 CC := gcc
-COPTION := -Wall -g -fsanitize=address
+COPTION := -Wall -g
 
 # Liste des fichiers sources
 SRC := $(wildcard $(REP_SRC)/*.c)

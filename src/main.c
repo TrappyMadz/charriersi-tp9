@@ -36,7 +36,7 @@ int main(int argc, char ** argv)
 
     groupe = enregistrement(nbJoueur);
     printf("%s",groupe[0].nom);
-    for (i = 0 ; i <= nbJoueur ; i++)
+    for (i = 0 ; i < nbJoueur ; i++)
     {
         free(groupe[i].nom);
     }
