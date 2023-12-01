@@ -23,11 +23,11 @@ struct sJoueur
     char* nom;
     int argent;
     int mise;
-    struct sCarte A;
-    struct sCarte B;
+    struct sCarte carte;
     int score;
 };
 
 void initialisation(struct sCarte paquet[52]);
+struct sJoueur* enregistrement(int int_joueurs);
 
 #endif

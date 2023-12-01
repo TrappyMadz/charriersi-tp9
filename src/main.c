@@ -30,11 +30,16 @@
 int main(int argc, char ** argv) 
 {
     srand(time(NULL));
-    struct sCarte paquet[52];
-    initialisation(paquet);
-    for (int i = 0; i < 52; i++) 
+    struct sJoueur* groupe = NULL;
+    int nbJoueur = 0;
+    int i;
+
+    groupe = enregistrement(nbJoueur);
+    printf("%s",groupe[0].nom);
+    for (i = 0 ; i <= nbJoueur ; i++)
     {
-        printf("Carte %d - Couleur: %d, Valeur: %d\n", i + 1, paquet[i].eCouleur, paquet[i].eValeurs);
+        free(groupe[i].nom);
     }
+    free(groupe);
     return 0;
 }   
