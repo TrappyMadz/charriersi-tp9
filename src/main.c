@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <string.h>
 
 #include "jeu.h"
 
@@ -31,12 +32,22 @@ int main(int argc, char ** argv)
 {
     srand(time(NULL));
     struct sJoueur* groupe = NULL;
-    int nbJoueur = 0;
+    int int_nbJoueur;
     int i;
+    int ipioche = 0;
+    struct sCarte paquet[52];
 
-    groupe = enregistrement(nbJoueur);
-    printf("%s",groupe[0].nom);
-    for (i = 0 ; i < nbJoueur ; i++)
+
+    initialisation(paquet,ipioche);
+    int_nbJoueur = nbJoueur();
+    groupe = enregistrement(int_nbJoueur);
+    printf("Nombre de joueurs : %d\n",int_nbJoueur);
+    ipioche = distrib(groupe, int_nbJoueur, paquet, ipioche);
+    
+    printf("Nombre de cartes piochées : %d\n",ipioche);
+
+
+    for (i = 0 ; i <= int_nbJoueur ; i++)
     {
         free(groupe[i].nom);
     }
