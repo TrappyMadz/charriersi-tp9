@@ -2,8 +2,8 @@
 \file main.c
 \author Charrier Simon
 \version 1
-\date 17 novembre 2023
-\brief Menu de séléction
+\date 3 décembre 2023
+\brief Lancement du jeu
 */
 
 // Importations
@@ -23,39 +23,27 @@
 \fn int main (int argc, char** argv)
 \author Charrier Simon
 \version 1
-\date 17 novembre 2023
-\brief Affichage du menu
+\date 3 décembre 2023
+\brief Lancement du jeu
 \param argc nombre d'arguments en entrée
 \param argv valeur des arguments en entrée
-\return 0 si tout c'est bien passé
+\return int_good qui est égale à 0 si tout c'est bien passé
 */
 int main(int argc, char ** argv) 
 {
+    // Déclaration des variables
+    // Tout s'est bien passé ?
+    int int_good;
+    // Initialisation de l'aléatoire
     srand(time(NULL));
-    
+    // Groupe de joueurs
     struct sJoueur groupe[5];
-    int int_nbJoueur = 1;
-    int ipioche = 0;
+    // Paquet de cartes
     struct sCarte paquet[52];
-    int int_pts;
-
-    /*
-    initialisation(paquet,ipioche);
-    int_nbJoueur = ask("Veuillez entrer le nombre de joueurs (max 4) :\n", 1, 4);
-    enregistrement(int_nbJoueur, groupe);
-    printf("Nombre de joueurs : %d\n",int_nbJoueur);
-    ipioche = distrib(groupe, int_nbJoueur, paquet, ipioche);
-    printf("Nombre de cartes piochées : %d\n",ipioche);
-    int_pts = points(groupe, 0);
-    printf("Nombre de points : %d",int_pts);
-    */
-
-    enregistrement(int_nbJoueur,groupe);
-    printf("%s\n", groupe[0].nom);
-    groupe[0].argent = 200;
-    mise(groupe, 0, 1);
-    printf("%d\n",groupe[0].mise);
+    
+    // Jeu
+    int_good = tourJeu(groupe, paquet);
 
 
-    return 0;
+    return int_good;
 }   

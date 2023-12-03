@@ -1,5 +1,14 @@
+/*!
+\file utile.c
+\author Charrier Simon
+\version 1
+\date 3 décembre 2023
+\brief Fonctions utiles
+*/
+
 #include <stdio.h>
 
+// Demande un nombre entier entre min et max, après avoir posé une question
 int ask(char text[],int min,int max)
 {
     int a,test;

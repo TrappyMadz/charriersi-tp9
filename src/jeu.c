@@ -1,9 +1,9 @@
 /*!
-\file utiles.c
+\file jeu.c
 \author Charrier Simon
 \version 1
 \date 17 novembre 2023
-\brief Fonctions utiles pour les TP
+\brief Fonctions utiles pour le déroulement du jeu
 */
 
 // Importations
@@ -25,7 +25,8 @@
 #define ROUGE "\x1B[1;31m"
 #define BLANC "\e[0;37m"
 
-void initialisation(struct sCarte paquet[52], int int_cartesPioche)
+// Initialisation du paquet de cartes et des variables joueurs
+int initialisation(struct sJoueur groupe[5], struct sCarte paquet[52], int int_cartesPioche, int int_nbJoueur)
 {
     // Déclaration des variables
     // Indice du tableau
@@ -64,8 +65,17 @@ void initialisation(struct sCarte paquet[52], int int_cartesPioche)
         paquet[i] = paquet[int_Rand];
         paquet[int_Rand] = tmp;
     }
+
+    // Partie joueurs
+    // On remet le nombre de cartes piochées par joueurs à 0
+    for (i = 0 ; i <= int_nbJoueur ; i++)
+    {    
+        groupe[i].pioche = 0;   
+    }
+    return int_cartesPioche;
 }
 
+// Enregistrement des joueurs (nom / argent avec lequel ils commencent)
 void enregistrement(int int_joueurs, struct sJoueur groupe[5])
 {
     // Déclaration des variables
@@ -89,17 +99,17 @@ void enregistrement(int int_joueurs, struct sJoueur groupe[5])
             groupe[i].nom[strlen(groupe[i].nom) - 1] = '\0';
         }
         groupe[i].argent = int_argent; 
-        groupe[i].pioche = 0;
-        groupe[i].joue = 1;
+        
     }
 
     // On s'occupe aussi du croupier
     strcpy(groupe[int_joueurs].nom, "Croupier");
-    groupe[int_joueurs].pioche = 0;
+    
 
     printf("Bien, la partie va pouvoir commencer !\n");
 }
 
+// Ajoute une carte à la main d'un joueur
 int pioche(struct sJoueur groupe[5], struct sCarte paquet[52], int int_joueur, int int_cartePioche)
 {
 
@@ -112,6 +122,7 @@ int pioche(struct sJoueur groupe[5], struct sCarte paquet[52], int int_joueur, i
     return int_cartePioche;
 }
 
+// Affiche les cartes d'un joueur
 void affichCarte(struct sJoueur joueur[5], int int_joueur)
 {
     // Déclaration des variables
@@ -205,7 +216,7 @@ void affichCarte(struct sJoueur joueur[5], int int_joueur)
 
             case Neuf :
                 strcpy(char_valeur, "9\0");
-                strcpy(char_valeur, "6\0");
+                strcpy(char_valeur2, "6\0");
                 break;
 
             case Dix :
@@ -281,7 +292,7 @@ void affichCarte(struct sJoueur joueur[5], int int_joueur)
 
             case Neuf :
                 strcpy(char_valeur, ROUGE "9" BLANC "\0");
-                strcpy(char_valeur, ROUGE "6" BLANC "\0");
+                strcpy(char_valeur2, ROUGE "6" BLANC "\0");
                 break;
 
             case Dix :
@@ -343,19 +354,15 @@ void affichCarte(struct sJoueur joueur[5], int int_joueur)
     }
 }
 
+// Distribution initiale (2 cartes par joueur et 1 au croupier, dans le bonne ordre)
 int distrib(struct sJoueur groupe[5], int int_nbJoueur, struct sCarte paquet[52], int int_cartePioche)
 {
-    // Déclaration des variables
-
     // On suit les règles du black jack :
     // Le croupier distribue une carte par joueur face visible et une à lui-même
-    printf("Le croupier distribue les cartes...\n");
     for (int i = 0 ; i <= int_nbJoueur ; i++)
     {
         int_cartePioche = pioche(groupe, paquet, i, int_cartePioche);
     }
-    
-    // On affiche uniquement les cartes du Croupier pour éviter la redondance
 
     // Le croupier distribue ensuite une deuxième carte uniquements aux joueurs. Il tire sa seconde carte une fois qu'ils ont joué.
     for (int i = 0 ; i < int_nbJoueur ; i++)
@@ -366,13 +373,14 @@ int distrib(struct sJoueur groupe[5], int int_nbJoueur, struct sCarte paquet[52]
     return (int_cartePioche);
 }
 
+// Calcul des points d'un participant
 int points(struct sJoueur groupe[5], int int_joueur)
 {
     // Déclaration des variables
     // Points totaux
     int int_pts = 0;
-    // Si on pioche un As, passe à vrai (permet de gerer la règle de l'As)
-    bool bool_as = false;
+    // Si on pioche un As, pon incrémente
+    int int_as = 0;
 
     // On parcours les cartes du joueur, et on ajoute les points que valent les cartes à son score
     for (int i = 0 ; i < groupe[int_joueur].pioche ; i++)
@@ -419,7 +427,7 @@ int points(struct sJoueur groupe[5], int int_joueur)
             break;
 
         case As :
-            bool_as = true;
+            int_as += 1;
             int_pts += 11;
         
         default:
@@ -431,24 +439,27 @@ int points(struct sJoueur groupe[5], int int_joueur)
     if (groupe[int_joueur].pioche <= 2 && int_pts == 21)
     {
         int_pts = 22;
+        return int_pts;
     }
 
-    // Règle de l'As
-    if (bool_as == true && int_pts >= 21)
+    // Règle de l'As 
+    while (int_pts > 21 && int_as > 0)
     {
         int_pts -= 10;
-        bool_as = false;
+        int_as -=1;
     }
 
     // Défaite
-    if (bool_as == false && int_pts >= 21)
+    if (int_as == 0 && int_pts >= 21)
     {
         int_pts = 0;
+        return int_pts;
     }
 
     return int_pts;
 }
 
+// Met fin à la partie en affichant les scores
 void finPartie(struct sJoueur groupe[5], int int_nbJoueur)
 {
     // Déclaration des variables
@@ -478,12 +489,10 @@ void finPartie(struct sJoueur groupe[5], int int_nbJoueur)
 
     // On indique quel joueur est vainqueur
     printf("%s reppart avec le plus d'argent (%d€)\n",groupe[int_pos].nom,int_max);
-
-
 }
 
-
-void mise(struct sJoueur groupe[5],int int_joueur, int int_nbJoueur)
+// Permet à un joueur de miser ou d'abandonner si il mise 0
+bool mise(struct sJoueur groupe[5],int int_joueur, int int_nbJoueur, bool bool_partieFinie)
 {
     // Déclaration des variables
     int int_mise;
@@ -497,12 +506,18 @@ void mise(struct sJoueur groupe[5],int int_joueur, int int_nbJoueur)
     // Quitter ?
     if (int_mise == 0)
     {
-        printf("Abandon de %s ! Partie terminée",groupe[int_joueur].nom);
+        printf("Abandon de %s !",groupe[int_joueur].nom);
         groupe[int_joueur].argent = 0;
-        finPartie(groupe, int_nbJoueur);
+        bool_partieFinie = true;
+        return bool_partieFinie;
+    }
+    else
+    {
+        return bool_partieFinie;
     }
 }
 
+// Permet à un joueur de tirer ou non des cartes suplémentaires
 int tirageJ(struct sJoueur groupe[5],struct sCarte paquet[52], int int_joueur,int int_nbJoueur, int int_nbCartePioche)
 {   
     // Déclaration des variables
@@ -510,24 +525,30 @@ int tirageJ(struct sJoueur groupe[5],struct sCarte paquet[52], int int_joueur,in
     int int_rep;
 
     // On affiche la carte du croupier, son score, puis de même pour le joueur
+    sleep(1);
     system("clear");
     affichCarte(groupe, int_nbJoueur);
     groupe[int_nbJoueur].score = points(groupe, int_nbJoueur);
-    if (groupe[int_nbJoueur].score == 0)
+    if (groupe[int_nbJoueur].score == 22 && groupe[int_nbJoueur].pioche == 1)
     {
         printf("Le croupier à fait un Black Jack !\n");
     }
+    else if (groupe[int_nbJoueur].score == 0)
+    {
+        printf("Le croupier est au dessus de 21 !\n");
+    }
     else
     {
-        printf("Points du croupier : %d\n",groupe[int_nbJoueur].score)
+        printf("Points du croupier : %d\n",groupe[int_nbJoueur].score);
     }
     
     affichCarte(groupe, int_joueur);
     // Si le joueur possède un black jack (21 points sans avoir tirer de cartes), on ne lui propose pas de tirer.
     groupe[int_joueur].score = points(groupe, int_joueur);
-    if (groupe[int_joueur].score == 22)
+    if (groupe[int_joueur].score == 22 && groupe[int_joueur].pioche == 1)
     {
         printf("Black Jack !\n");
+        sleep(1);
         return int_nbCartePioche;
     }
     
@@ -535,19 +556,20 @@ int tirageJ(struct sJoueur groupe[5],struct sCarte paquet[52], int int_joueur,in
     else
     {
         printf("Vos points : %d\n",groupe[int_joueur].score);
-        while (groupe[int_joueur].score <= 21)
+        while (groupe[int_joueur].score <= 21 && groupe[int_joueur].score != 0)
         {
             // On demande au joueur si il souhaite une nouvelle carte
             int_rep = ask("Voulez-vous une carte suplémentaire (0 : Oui, 1 : Non) ?\n",0,1);
 
             // Si c'est le cas, on lui en fait piocher une
-            if (int_rep == 1)
+            if (int_rep == 0)
             {
                 int_nbCartePioche = pioche(groupe, paquet, int_joueur, int_nbCartePioche);
                 // On actualise le score
                 groupe[int_joueur].score = points(groupe, int_joueur);
 
                 // On affiche de nouveau les cartes
+                sleep(1);
                 system("clear");
                 affichCarte(groupe, int_nbJoueur);
                 groupe[int_nbJoueur].score = points(groupe, int_nbJoueur);
@@ -557,7 +579,7 @@ int tirageJ(struct sJoueur groupe[5],struct sCarte paquet[52], int int_joueur,in
                 }
                 else
                 {
-                    printf("Points du croupier : %d\n",groupe[int_nbJoueur].score)
+                    printf("Points du croupier : %d\n",groupe[int_nbJoueur].score);
                 }
     
                 affichCarte(groupe, int_joueur);
@@ -571,57 +593,149 @@ int tirageJ(struct sJoueur groupe[5],struct sCarte paquet[52], int int_joueur,in
         }
 
         printf("Vous atteignez %d points. Dommage, c'est perdu !\n",groupe[int_joueur].score);
+        sleep(1);
         return int_nbCartePioche;
     }
 }
 
+// Tour du croupier
 int tirageC(struct sJoueur groupe[5], struct sCarte paquet[52], int int_nbJoueur, int int_nbCartePioche)
 {
     // Le croupier suit les règles normales du black jack. La seule différence est qu'il commence avec une seule carte
+    groupe[int_nbJoueur].score = points(groupe,int_nbJoueur);
 
     // Tant que le croupier à moins de 17 points,
+    while(groupe[int_nbJoueur].score < 17 && groupe[int_nbJoueur].score != 0)
+    {
+        // On actualise les points du croupier
+        groupe[int_nbJoueur].score = points(groupe,int_nbJoueur);
+
         // On clear, on affiche sa main, ses points
+        sleep(1);
+        system("clear");
+        affichCarte(groupe, int_nbJoueur);
+        printf("Points du croupier : %d\n",groupe[int_nbJoueur].score);
 
-        // Il tire une nouvelle carte
+        int_nbCartePioche = pioche(groupe, paquet, int_nbJoueur, int_nbCartePioche);
+    }
 
-    // Une fois qu'il a fini, on affiche de nouveau sa main et ses points :
+    // Une fois qu'il a fini, on affiche de nouveausleep(1); sa main et ses points :
+    printf("Le croupier s'arrête.\n");
+    sleep(1);
+
     // Si il a un black jack, on affiche un message spécial
+    if (groupe[int_nbJoueur].score == 22 && groupe[int_nbJoueur].pioche == 1)
+    {
+        printf("Le croupier a fait un Black Jack !\n");
+        sleep(1);
+        return int_nbCartePioche;
+    }
     // Si il fait plus de 21, il perd
+    else if (groupe[int_nbJoueur].score > 21)
+    {
+        printf("Le croupier est au dessus de 21 !\n");
+        sleep(1);
+        return int_nbCartePioche;
+    }
+    
     // Sinon, rien de spécial ne se passe.
+    return int_nbCartePioche;
 }
 
-void compar(struct sJoueur groupe[5])
+// Compare les points des joueurs avec ceux du croupier et gère les gains
+void compar(struct sJoueur groupe[5], int int_nbJoueur)
 {
-    // On parcours la totalité des joueurs et on compare leur score à celui du croupier
 
+    // On parcours la totalité des joueurs et on compare leur score à celui du croupier
+    for (int i = 0 ; i < int_nbJoueur ; i++)
+    {
         // Si il est supérieur, on leur rend leur mise x2
+        if (groupe[i].score > groupe[int_nbJoueur].score)
+        {
+            groupe[i].argent += groupe[i].mise * 2;
+            groupe[i].mise = 0;
+            printf("%s à plus de points que le croupier (%d) ! Il remporte le double de sa mise.\n",groupe[i].nom, groupe[i].score);
+        }
+
+        // Si il y a égalité, on rend au joueur sa mise
+        else if (groupe[i].score == groupe[int_nbJoueur].score)
+        {
+            groupe[i].argent += groupe[i].mise;
+            groupe[i].mise = 0;
+            printf("%s à autant de points que le croupier (%d) ! Il récupère sa mise.\n",groupe[i].nom, groupe[i].score);
+        }        
 
         // Sinon on ne fait rien
+        else if (groupe[i].score < groupe[int_nbJoueur].score)
+        {
+            groupe[i].mise = 0;
+            printf("%s à moins de points que le croupier (%d) ! Il perd sa mise.\n",groupe[i].nom, groupe[i].score);
+        }
 
         // Rappel : si une personne fait un black jack, il a un score de 22 (donc > 21 via un tirage normal)
         // Rappel bis : si une personne va au delà de 21, son score est ramené à 0
         // Ces deux cas sont déjà gérés par la fonction points.
+    }
 }
 
-/*
+// Déroulement de la partie, en utilisant les fonctions précedantes
 int tourJeu(struct sJoueur groupe[5], struct sCarte paquet[52])
 {
-    // On commence par initialiser une première fois le jeu de carte
+    // Déclaration des variables
+    // Nombre de cartes piochées par l'ensemble des joueur (= où on en est dans le paquet)
+    int int_nbCartePioche;
+    // La partie est-elle finie ?
+    bool bool_partieFinie = false;
+    // Nombre de joueurs
+    int int_nbJoueurs;
 
-    // Ensuite les joueurs s'enregistres
+    printf("Bienvenu ! prêt à jouer au Black Jack ?\n");
+    // On demande le nombre de joueurs
+    int_nbJoueurs = ask("Parfait, dans ce cas, combien de joueurs sont présents (Max 4) ?\n",1,4);
+        
+    // Les joueurs s'enregistres
+    enregistrement(int_nbJoueurs, groupe);
 
-    // Chaque joueur va pouvoir miser
+    while (bool_partieFinie == false)
+    {
+        // On commence par initialiser le jeu de carte
+        printf("Le croupier mélange le paquet de cartes...\n");
+        int_nbCartePioche = initialisation(groupe, paquet, int_nbCartePioche, int_nbJoueurs);
 
-    // Le croupier distribue les cartes, qui s'affichent
+        // Chaque joueur va pouvoir miser
+        printf("Chaque joueur va pouvoir miser pour ce tour !\n");
+        for (int i = 0 ; i < int_nbJoueurs ; i++)
+        {
+            printf("Au tour de %s de miser.\n", groupe[i].nom);
+            bool_partieFinie = mise(groupe, i, int_nbJoueurs, bool_partieFinie);
+            
+            // Si la partie est finie, on termine le round pour que les joueurs soient sur un pied d'égaliter
+            // Sinon, si joueur 1 mise, puis que joueur 2 abandonne, joueur 3 aura plus de chance d'avoir plus d'argent, puisqu'il n'a pas encore misé.
+        }
 
-    // Tour à tour, chaque joueur va tirer les cartes qu'il veut
 
-    // Enfin, le croupier jouera
+        // Le croupier distribue les cartes, qui s'affichent
+        printf("Le croupier distribue les cartes...\n");
+        int_nbCartePioche = distrib(groupe, int_nbJoueurs, paquet, int_nbCartePioche);
 
-    // On compare les score, ceux qui on au dessus du croupier double leur mises, les autres la perde
+        // Tour à tour, chaque joueur va tirer les cartes qu'il veut
+        printf("Chaque joueur va pouvoir maintenant pouvoir jouer !\n");
+        for (int i = 0 ; i < int_nbJoueurs ; i++)
+        {
+            int_nbCartePioche = tirageJ(groupe, paquet, i, int_nbJoueurs, int_nbCartePioche);
+        }
+
+        // Enfin, le croupier jouera
+        printf("Tour du croupier.\n");
+        int_nbCartePioche = tirageC(groupe, paquet, int_nbJoueurs, int_nbCartePioche);
+
+        // On compare les score, ceux qui on au dessus du croupier double leur mises, les autres la perde
+        printf("Résultats : \n");
+        compar(groupe, int_nbJoueurs);
+    }
 
     // La partie prendra fin si l'un des joueur décide de miser 0 lors de la phase de mise (par volonté ou par obligation)
-
     // Dans ce cas, on affiche les scores via la fonction finPartie
-    
+    finPartie(groupe, int_nbJoueurs);
+    return 0;
 }
