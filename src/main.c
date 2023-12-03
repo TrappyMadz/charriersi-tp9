@@ -13,6 +13,7 @@
 #include <string.h>
 
 #include "jeu.h"
+#include "utile.h"
 
 // Définitions
 #define ERREUR -1
@@ -31,26 +32,30 @@
 int main(int argc, char ** argv) 
 {
     srand(time(NULL));
-    struct sJoueur* groupe = NULL;
-    int int_nbJoueur;
-    int i;
+    
+    struct sJoueur groupe[5];
+    int int_nbJoueur = 1;
     int ipioche = 0;
     struct sCarte paquet[52];
+    int int_pts;
 
-
+    /*
     initialisation(paquet,ipioche);
-    int_nbJoueur = nbJoueur();
-    groupe = enregistrement(int_nbJoueur);
+    int_nbJoueur = ask("Veuillez entrer le nombre de joueurs (max 4) :\n", 1, 4);
+    enregistrement(int_nbJoueur, groupe);
     printf("Nombre de joueurs : %d\n",int_nbJoueur);
     ipioche = distrib(groupe, int_nbJoueur, paquet, ipioche);
-    
     printf("Nombre de cartes piochées : %d\n",ipioche);
+    int_pts = points(groupe, 0);
+    printf("Nombre de points : %d",int_pts);
+    */
+
+    enregistrement(int_nbJoueur,groupe);
+    printf("%s\n", groupe[0].nom);
+    groupe[0].argent = 200;
+    mise(groupe, 0, 1);
+    printf("%d\n",groupe[0].mise);
 
 
-    for (i = 0 ; i <= int_nbJoueur ; i++)
-    {
-        free(groupe[i].nom);
-    }
-    free(groupe);
     return 0;
 }   

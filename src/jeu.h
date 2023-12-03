@@ -20,7 +20,7 @@ struct sCarte
 
 struct sJoueur
 {
-    char* nom;
+    char nom[256];
     int argent;
     int mise;
     struct sCarte carte[10];
@@ -29,9 +29,11 @@ struct sJoueur
 };
 
 void initialisation(struct sCarte paquet[52], int int_cartesPioche);
-int pioche(struct sJoueur* groupe, struct sCarte paquet[52], int int_joueur, int int_cartePioche);
-struct sJoueur* enregistrement(int int_joueurs);
-void affichCarte(struct sJoueur* joueur, int int_joueur);
-int distrib(struct sJoueur* groupe, int int_nbJoueur, struct sCarte paquet[52], int int_cartePioche);
-int nbJoueur();
+int pioche(struct sJoueur groupe[5], struct sCarte paquet[52], int int_joueur, int int_cartePioche);
+void enregistrement(int int_joueurs, struct sJoueur groupe[5]);
+void affichCarte(struct sJoueur joueur[5], int int_joueur);
+int distrib(struct sJoueur groupe[5], int int_nbJoueur, struct sCarte paquet[52], int int_cartePioche);
+int points(struct sJoueur groupe[5], int int_joueur);
+void finPartie(struct sJoueur groupe[5], int int_nbJoueur);
+void mise(struct sJoueur groupe[5],int int_joueur, int int_nbJoueur);
 #endif
