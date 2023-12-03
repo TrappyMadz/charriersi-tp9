@@ -90,6 +90,7 @@ void enregistrement(int int_joueurs, struct sJoueur groupe[5])
         }
         groupe[i].argent = int_argent; 
         groupe[i].pioche = 0;
+        groupe[i].joue = 1;
     }
 
     // On s'occupe aussi du croupier
@@ -348,19 +349,18 @@ int distrib(struct sJoueur groupe[5], int int_nbJoueur, struct sCarte paquet[52]
 
     // On suit les règles du black jack :
     // Le croupier distribue une carte par joueur face visible et une à lui-même
+    printf("Le croupier distribue les cartes...\n");
     for (int i = 0 ; i <= int_nbJoueur ; i++)
     {
         int_cartePioche = pioche(groupe, paquet, i, int_cartePioche);
     }
     
     // On affiche uniquement les cartes du Croupier pour éviter la redondance
-    affichCarte(groupe, int_nbJoueur);
 
     // Le croupier distribue ensuite une deuxième carte uniquements aux joueurs. Il tire sa seconde carte une fois qu'ils ont joué.
     for (int i = 0 ; i < int_nbJoueur ; i++)
     {
         int_cartePioche = pioche(groupe, paquet, i, int_cartePioche);
-        affichCarte(groupe, i);
     }
 
     return (int_cartePioche);
@@ -430,7 +430,6 @@ int points(struct sJoueur groupe[5], int int_joueur)
     // Blackjack !
     if (groupe[int_joueur].pioche <= 2 && int_pts == 21)
     {
-        printf("Black Jack !\n");
         int_pts = 22;
     }
 
@@ -504,4 +503,125 @@ void mise(struct sJoueur groupe[5],int int_joueur, int int_nbJoueur)
     }
 }
 
+int tirageJ(struct sJoueur groupe[5],struct sCarte paquet[52], int int_joueur,int int_nbJoueur, int int_nbCartePioche)
+{   
+    // Déclaration des variables
+    // Réponse à la question "pioche ?"
+    int int_rep;
 
+    // On affiche la carte du croupier, son score, puis de même pour le joueur
+    system("clear");
+    affichCarte(groupe, int_nbJoueur);
+    groupe[int_nbJoueur].score = points(groupe, int_nbJoueur);
+    if (groupe[int_nbJoueur].score == 0)
+    {
+        printf("Le croupier à fait un Black Jack !\n");
+    }
+    else
+    {
+        printf("Points du croupier : %d\n",groupe[int_nbJoueur].score)
+    }
+    
+    affichCarte(groupe, int_joueur);
+    // Si le joueur possède un black jack (21 points sans avoir tirer de cartes), on ne lui propose pas de tirer.
+    groupe[int_joueur].score = points(groupe, int_joueur);
+    if (groupe[int_joueur].score == 22)
+    {
+        printf("Black Jack !\n");
+        return int_nbCartePioche;
+    }
+    
+
+    else
+    {
+        printf("Vos points : %d\n",groupe[int_joueur].score);
+        while (groupe[int_joueur].score <= 21)
+        {
+            // On demande au joueur si il souhaite une nouvelle carte
+            int_rep = ask("Voulez-vous une carte suplémentaire (0 : Oui, 1 : Non) ?\n",0,1);
+
+            // Si c'est le cas, on lui en fait piocher une
+            if (int_rep == 1)
+            {
+                int_nbCartePioche = pioche(groupe, paquet, int_joueur, int_nbCartePioche);
+                // On actualise le score
+                groupe[int_joueur].score = points(groupe, int_joueur);
+
+                // On affiche de nouveau les cartes
+                system("clear");
+                affichCarte(groupe, int_nbJoueur);
+                groupe[int_nbJoueur].score = points(groupe, int_nbJoueur);
+                if (groupe[int_nbJoueur].score == 0)
+                {
+                    printf("Le croupier à fait un Black Jack !\n");
+                }
+                else
+                {
+                    printf("Points du croupier : %d\n",groupe[int_nbJoueur].score)
+                }
+    
+                affichCarte(groupe, int_joueur);
+                printf("Vos points : %d\n",groupe[int_joueur].score);
+            
+            }
+            else
+            {
+                return int_nbCartePioche;
+            }
+        }
+
+        printf("Vous atteignez %d points. Dommage, c'est perdu !\n",groupe[int_joueur].score);
+        return int_nbCartePioche;
+    }
+}
+
+int tirageC(struct sJoueur groupe[5], struct sCarte paquet[52], int int_nbJoueur, int int_nbCartePioche)
+{
+    // Le croupier suit les règles normales du black jack. La seule différence est qu'il commence avec une seule carte
+
+    // Tant que le croupier à moins de 17 points,
+        // On clear, on affiche sa main, ses points
+
+        // Il tire une nouvelle carte
+
+    // Une fois qu'il a fini, on affiche de nouveau sa main et ses points :
+    // Si il a un black jack, on affiche un message spécial
+    // Si il fait plus de 21, il perd
+    // Sinon, rien de spécial ne se passe.
+}
+
+void compar(struct sJoueur groupe[5])
+{
+    // On parcours la totalité des joueurs et on compare leur score à celui du croupier
+
+        // Si il est supérieur, on leur rend leur mise x2
+
+        // Sinon on ne fait rien
+
+        // Rappel : si une personne fait un black jack, il a un score de 22 (donc > 21 via un tirage normal)
+        // Rappel bis : si une personne va au delà de 21, son score est ramené à 0
+        // Ces deux cas sont déjà gérés par la fonction points.
+}
+
+/*
+int tourJeu(struct sJoueur groupe[5], struct sCarte paquet[52])
+{
+    // On commence par initialiser une première fois le jeu de carte
+
+    // Ensuite les joueurs s'enregistres
+
+    // Chaque joueur va pouvoir miser
+
+    // Le croupier distribue les cartes, qui s'affichent
+
+    // Tour à tour, chaque joueur va tirer les cartes qu'il veut
+
+    // Enfin, le croupier jouera
+
+    // On compare les score, ceux qui on au dessus du croupier double leur mises, les autres la perde
+
+    // La partie prendra fin si l'un des joueur décide de miser 0 lors de la phase de mise (par volonté ou par obligation)
+
+    // Dans ce cas, on affiche les scores via la fonction finPartie
+    
+}
